@@ -23,17 +23,6 @@ interface GatewayInterface
     public function getShortName();
 
     /**
-     * Define gateway parameters, in the following format:
-     *
-     * array(
-     *     'username' => '', // string variable
-     *     'testMode' => false, // boolean variable
-     *     'landingPage' => array('billing', 'login'), // enum variable, first item is default
-     * );
-     */
-    public function getDefaultParameters();
-
-    /**
      * Initialize gateway with parameters
      */
     public function initialize(array $parameters = array());
@@ -53,4 +42,10 @@ interface GatewayInterface
      * @return \Omnipay\Common\Message\RequestInterface
      */
     public function purchase(array $parameters = array());
+
+    /**
+     * Returns the gateway metdata.
+     * @return \Omnipay\Common\Metadata\MetadataInterface The metadata instance.
+     */
+    public function getMetadata();
 }

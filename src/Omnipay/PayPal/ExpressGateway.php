@@ -2,6 +2,7 @@
 
 namespace Omnipay\PayPal;
 
+use Omnipay\Common\Parameter\Parameter;
 use Omnipay\PayPal\Message\ExpressAuthorizeRequest;
 use Omnipay\PayPal\Message\ExpressCompleteAuthorizeRequest;
 use Omnipay\PayPal\Message\ExpressCompletePurchaseRequest;
@@ -14,16 +15,6 @@ class ExpressGateway extends ProGateway
     public function getName()
     {
         return 'PayPal Express';
-    }
-
-    public function getDefaultParameters()
-    {
-        $settings = parent::getDefaultParameters();
-        $settings['solutionType'] = array('Sole', 'Mark');
-        $settings['landingPage'] = array('Billing', 'Login');
-        $settings['headerImageUrl'] = '';
-
-        return $settings;
     }
 
     public function getSolutionType()
@@ -83,5 +74,39 @@ class ExpressGateway extends ProGateway
     public function completePurchase(array $parameters = array())
     {
         return $this->createRequest('\Omnipay\PayPal\Message\ExpressCompletePurchaseRequest', $parameters);
+    }
+
+    /**
+     * Registers gateway parameters.
+     */
+    protected function registerParameters()
+    {
+        parent::registerParameters();
+
+        // solutionType parameter
+        $parameter = new Parameter('solutionType');
+        $parameter->setLabel(_('Solution type'))
+            ->setDescription(_('The type of checkout flow'))
+            ->setDefaultValue('Sole')
+            ->setAllowedValues(array('Sole', 'Mark'))
+            ->setIsRequired(true);
+        $this->getMetadata()->addParameter($parameter);
+
+        // landingPage parameter
+        $parameter = new Parameter('landingPage');
+        $parameter->setLabel(_('Landing page'))
+            ->setDescription(_('The type of PayPal page to display'))
+            ->setDefaultValue('Billing')
+            ->setAllowedValues(array('Billing', 'Login'))
+            ->setIsRequired(true);
+        $this->getMetadata()->addParameter($parameter);
+
+        // headerImageUrl parameter
+        $parameter = new Parameter('headerImageUrl');
+        $parameter->setLabel(_('Landing page'))
+            ->setDescription(_('The URL for the image you want to appear at the top left of the payment page'))
+            ->setDefaultValue('')
+            ->setIsRequired(true);
+        $this->getMetadata()->addParameter($parameter);
     }
 }

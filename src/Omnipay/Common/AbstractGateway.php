@@ -28,6 +28,11 @@ abstract class AbstractGateway implements GatewayInterface
     protected $httpRequest;
 
     /**
+     * @var \Omnipay\Common\Metadata\MetadataInterface The metadata instance.
+     */
+    protected $metadata;
+
+    /**
      * Create a new gateway instance
      *
      * @param ClientInterface $httpClient  A Guzzle client to make API calls with
@@ -37,6 +42,8 @@ abstract class AbstractGateway implements GatewayInterface
     {
         $this->httpClient = $httpClient ?: $this->getDefaultHttpClient();
         $this->httpRequest = $httpRequest ?: $this->getDefaultHttpRequest();
+        $this->metadata = $this->createMetadata();
+
         $this->initialize();
     }
 
@@ -48,9 +55,12 @@ abstract class AbstractGateway implements GatewayInterface
     public function initialize(array $parameters = array())
     {
         $this->parameters = new ParameterBag;
+        $this->registerParameters();
 
-        // set default parameters
-        foreach ($this->getDefaultParameters() as $key => $value) {
+        // Set parameters
+        foreach ($this->getMetadata()->getParameters() as $parameter) {
+            $key = $parameter->getName();
+            $value = $parameter->getDefaultValue();
             if (is_array($value)) {
                 $this->parameters->set($key, reset($value));
             } else {
@@ -213,5 +223,30 @@ abstract class AbstractGateway implements GatewayInterface
     protected function getDefaultHttpRequest()
     {
         return HttpRequest::createFromGlobals();
+    }
+
+    /**
+     * Registers gateway parameters.
+     * This method is invoked during gateway initialization to
+     * register all available parameters that are exposed to
+     * the client that uses the gateway.
+     */
+    abstract protected function registerParameters();
+
+    /**
+     * Creates the gateway metadata.
+     * This method is invoked during gateway initialization to
+     * register all available parameters that are exposed to
+     * the client that uses the gateway.
+     */
+    abstract protected function createMetadata();
+
+    /**
+     * Returns the gateway metdata.
+     * @return \Omnipay\Common\Metadata\MetadataInterface The metadata instance.
+     */
+    public function getMetadata()
+    {
+        return $this->metadata;
     }
 }
